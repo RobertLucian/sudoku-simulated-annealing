@@ -2,6 +2,7 @@ import json
 import random
 import math
 import copy
+import click
 
 def read_sudoku(file):
     """
@@ -18,7 +19,7 @@ def show_sudoku(sudoku, sasudoku=False):
     for row, x in zip(sudoku, range(9)):
 
         if x % 3 == 0 and x > 0 and x < 9:
-            print(21 * "-")
+            click.echo(21 * "-")    
 
         string = ""
         for cell, y in zip(row, range(9)):
@@ -30,7 +31,7 @@ def show_sudoku(sudoku, sasudoku=False):
                 if sasudoku:
                     cell = cell.value
                 string += str(cell) + " "
-        print(string)
+        click.echo(string)
 
 class Cell:
     def __init__(self, value, variable=False):
@@ -153,17 +154,21 @@ def acceptance_probability(energy, new_energy, temperature):
     else:
         return math.exp((energy - new_energy) / temperature)
 
-def main():
-    state = read_sudoku("test/sudoku.json")
+@click.command()
+@click.option('--initial-temp', type=click.FLOAT, default=5.0e-2, show_default=True)
+@click.option('--stop-temp', type=click.FLOAT, default=1.0e-5, show_default=True)
+@click.option('--cooldown-rate', type=click.FLOAT, default=0.5e-5, show_default=True)
+@click.argument('filename')
+def main(initial_temp, stop_temp, cooldown_rate, filename):
+    state = read_sudoku(filename)
     show_sudoku(state)
 
     sudoku = SASudoku(state)
     best = sudoku
 
     random.seed()
-    temperature = 5.0e-2
-    low_temp_limit = 1.0e-6
-    cooldown_rate = 1.0e-5
+    temperature = initial_temp
+    low_temp_limit = stop_temp
     counter = 0
 
     while temperature > low_temp_limit:
@@ -185,14 +190,14 @@ def main():
         best_energy = best.determine_energy()
         current_energy = sudoku.determine_energy()
         if counter % 100 == 0:
-            print(f"Best energy: {int(best_energy * 243)}/243 | Current Energy: {int(current_energy * 243)}/243 | Temperature: {temperature}")
+            click.echo(f"Best energy: {int(best_energy * 243)}/243 | Current Energy: {int(current_energy * 243)}/243 | Temperature: {temperature}")
         if best_energy == 0.0:
             break
 
         temperature *= (1 - cooldown_rate)
         counter += 1
 
-    print("Reached end of simulated annealing")
+    click.echo("Reached end of simulated annealing")
     show_sudoku(best, sasudoku=True)
 
 if __name__ == "__main__":
