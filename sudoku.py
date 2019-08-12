@@ -166,9 +166,9 @@ def acceptance_probability(energy, new_energy, temperature):
         return math.exp((energy - new_energy) / temperature)
 
 @click.command()
-@click.option('--initial-temp', type=click.FLOAT, default=5.0e-2, show_default=True)
-@click.option('--stop-temp', type=click.FLOAT, default=1.0e-5, show_default=True)
-@click.option('--cooldown-rate', type=click.FLOAT, default=0.5e-5, show_default=True)
+@click.option('--initial-temp', type=click.FLOAT, default=5.0e-2, show_default=True, help='Initial temperature of the simulated annealing algorithm')
+@click.option('--stop-temp', type=click.FLOAT, default=1.0e-5, show_default=True, help='The temperature at which the algorithm hard stops')
+@click.option('--cooldown-rate', type=click.FLOAT, default=0.5e-5, show_default=True, help='The rate at which the temperature drops')
 @click.argument('filename')
 def main(initial_temp, stop_temp, cooldown_rate, filename):
     # read the sudoku board and display it
